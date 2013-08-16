@@ -24,7 +24,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "osd_model.h"
 #include "events.h"
 
-void setModelChannelList(model_channellist_t *model, int index, int id, int lcn, char *name, int selected)
+void osd_model_channellist_set(model_channellist_t *model, int index, int id, int lcn, char *name, int selected)
 {
   if (selected) {
     model->selectedIndex = index;
@@ -35,7 +35,7 @@ void setModelChannelList(model_channellist_t *model, int index, int id, int lcn,
   snprintf(model->channel[index].name, sizeof(model->channel[index].name), "%s", name); 
 }
 
-void clearModelChannelList(model_channellist_t *model) 
+void osd_model_channellist_clear(model_channellist_t *model) 
 {
   int i;
   memset(model, 0, sizeof(model_channellist_t));
@@ -45,7 +45,7 @@ void clearModelChannelList(model_channellist_t *model)
   }  
 }
 
-void copyModelChannelList(model_channellist_t *toModel, const model_channellist_t *fromModel)
+void osd_model_channellist_copy(model_channellist_t *toModel, const model_channellist_t *fromModel)
 {
   memcpy(toModel, fromModel, sizeof(model_channellist_t));
 }
@@ -54,7 +54,7 @@ void setSelectedIndex(model_channellist_t *model, int index) {
   model->selectedIndex = index;
 }
 
-int compareIndexModelChannelList(model_channellist_t *newModel, model_channellist_t *oldModel, int index)
+int osd_model_channellist_compare(model_channellist_t *newModel, model_channellist_t *oldModel, int index)
 {
   if ((newModel->selectedIndex == index || oldModel->selectedIndex == index) ||
       newModel->channel[index].id != oldModel->channel[index].id ||
@@ -65,11 +65,7 @@ int compareIndexModelChannelList(model_channellist_t *newModel, model_channellis
   return 0;
 }
 
-void compareModelChannelList(model_channellist_t *newModel, model_channellist_t *oldModel, void *fkn)
-{
-}
-
-void setModelNowNext(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server)
+void osd_model_nownext_set(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server)
 {  
   model->selectedIndex = 0;
   model->server = server;  
@@ -85,7 +81,6 @@ void setModelNowNext(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEv
   model->event[9] = 0;
   model->event[10] = 0;
   model->event[11] = 0;
-  model->event[12] = 0;  
 }
 
 

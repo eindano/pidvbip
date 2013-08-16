@@ -50,7 +50,7 @@ static void osd_channellist_channels(struct osd_t* osd)
   char str[128];
   
   for (i = 0; i < osd->model_channellist.numUsed; i++) {
-    if ( compareIndexModelChannelList(&osd->model_channellist, &osd->model_channellist_current, i) == 1 ) {
+    if ( osd_model_channellist_compare(&osd->model_channellist, &osd->model_channellist_current, i) == 1 ) {
       printf("osd_channellist_channels: Update index %d - lcn %d\n", i, osd->model_channellist.channel[i].lcn);
       if (osd->model_channellist.selectedIndex == i) {
         color = COLOR_SELECTED_TEXT;

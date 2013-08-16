@@ -667,7 +667,7 @@ void osd_channellist_event_init(struct osd_t* osd, int channel)
   channels_geteventid(channel, &osd->event, &server);
   channels_getnexteventid(channel, &osd->nextEvent, &server);
   
-  setModelNowNext(&osd->model_now_next, osd->event, osd->nextEvent, server);
+  osd_model_nownext_set(&osd->model_now_next, osd->event, osd->nextEvent, server);
 }                                   
 
 /*
@@ -685,8 +685,8 @@ void osd_channellist_init(struct osd_t* osd, int startChannel, int selectedChann
   uint32_t event;
   uint32_t next_event;
   
-  clearModelChannelList(&osd->model_channellist);
-  clearModelChannelList(&osd->model_channellist_current);  
+  osd_model_channellist_clear(&osd->model_channellist);
+  osd_model_channellist_clear(&osd->model_channellist_current);  
   
   num_channels = channels_getcount();
   first_channel = channels_getfirst();
@@ -707,7 +707,7 @@ void osd_channellist_init(struct osd_t* osd, int startChannel, int selectedChann
       // event info
       channels_geteventid(id, &event, &server);
       channels_getnexteventid(id, &next_event, &server);      
-      setModelChannelList(&osd->model_channellist, i, id, channels_getlcn(id), channels_getname(id), selected);
+      osd_model_channellist_set(&osd->model_channellist, i, id, channels_getlcn(id), channels_getname(id), selected);
       id = channels_getnext(id);   
       if (id == first_channel) {
         i++;
@@ -804,7 +804,7 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
       }
       osd_view(osd, OSD_CHANNELLIST);
       // make the new model the current
-      copyModelChannelList(&osd->model_channellist_current, &osd->model_channellist);
+      osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
       break;
     case 'u':
       if (osd->model_channellist.active == 1) {
@@ -832,7 +832,7 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
       }
       osd_view(osd, OSD_CHANNELLIST);
       // make the new model the current
-      copyModelChannelList(&osd->model_channellist_current, &osd->model_channellist);
+      osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
       break;  
     case 'n':
       // Next page
@@ -841,7 +841,7 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
         osd_channellist_init(osd, startChannel, startChannel);   
         osd_view(osd, OSD_CHANNELLIST);
         // make the new model the current
-        copyModelChannelList(&osd->model_channellist_current, &osd->model_channellist);
+        osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
       }  
       break;
     case 'p':
@@ -857,7 +857,7 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
         osd_channellist_init(osd, startChannel, startChannel);
         osd_view(osd, OSD_CHANNELLIST);
         // make the new model the current
-        copyModelChannelList(&osd->model_channellist_current, &osd->model_channellist);
+        osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
       }  
       break;
     case 'l':
@@ -915,7 +915,7 @@ int osd_process_key(struct osd_t* osd, int c, int channel_id)
     osd_channellist_init(osd, startChannel, selectedChannel);
     osd_view(osd, OSD_CHANNELLIST);
     // make the new model the current
-    copyModelChannelList(&osd->model_channellist_current, &osd->model_channellist);
+    osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
     return -1;
   }
   
