@@ -35,7 +35,6 @@ endif
 SRCS = \
 	sha1.c \
 	acodec_omx.c \
-	avl.c \
 	cec.c \
 	channels.c \
 	codec.c \
@@ -48,6 +47,7 @@ SRCS = \
 	omx_utils.c \
   osd_view.c \
 	osd.c \
+	snapshot.c \
 	tiresias_pcfont.c \
 	utils.c \
 	vcodec_omx.c \

@@ -52,6 +52,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "input.h"
 #include "omx_utils.h"
 #include "utils.h"
+#include "snapshot.h"
 
 struct omx_pipeline_t omxpipe;
 extern struct configfile_parameters global_settings;
@@ -299,10 +300,6 @@ void* htsp_receiver_thread(struct codecs_t* codecs)
         case HTMSG_NEW_CHANNEL:
           omxpipe.channel_switch_starttime = get_time();
 
-          codec_new_channel(&codecs->vcodec);
-          codec_new_channel(&codecs->acodec);
-          codecs->acodec.first_packet = 1;
-
 	  fprintf(stderr,"Channel change starttime=%f\n",omxpipe.channel_switch_starttime);
           if (htsp.subscriptionServer >= 0) { /* If we have a current subscription */
             res = htsp_create_message(&msg,HMF_STR,"method","unsubscribe",HMF_S64,"subscriptionId",htsp.subscriptionId,HMF_NULL);
@@ -381,6 +378,10 @@ void* htsp_receiver_thread(struct codecs_t* codecs)
           codecs->vcodec.height = codecs->subscription.streams[codecs->subscription.videostream].height;
 
           codecs->acodec.acodectype = codecs->subscription.streams[codecs->subscription.audiostream].codec;
+
+          codec_new_channel(&codecs->vcodec);
+          codec_new_channel(&codecs->acodec);
+          codecs->acodec.first_packet = 1;
 
           /* Resume sending packets to codecs */
           codecs->vcodec.is_running = 1;
@@ -659,6 +660,7 @@ int main(int argc, char* argv[])
     double new_channel_timeout;
     int current_channel_id;
     int new_actual_channel_id;
+    double idle_timeout = -1;
 
     new_channel = -1;
     new_channel_timeout = 0;
@@ -670,6 +672,13 @@ int main(int argc, char* argv[])
 
       if (c != -1) {
         DEBUGF("char read: 0x%08x ('%c')\n", c,(isalnum(c) ? c : ' '));
+
+        /* Check for idle-timeout */
+        if ((global_settings.idle_timeout > 0) && (htsp.subscriptionServer >= 0)) {
+          /* Streaming is go so reset timer */
+          idle_timeout = get_time() + (global_settings.idle_timeout * 1000 * 60);
+          DEBUGF("idle_timeout timer started and set to %G\n",idle_timeout);
+        };
 
         switch (c) {
           case '0':
@@ -832,22 +841,48 @@ int main(int argc, char* argv[])
             }
             break;
 #endif
-
           case 'z':
             zoom = 1 - zoom;
             codec_send_message(&codecs.vcodec,MSG_ZOOM,(void*)zoom);
             break;
-            
           case 'e':
             osd_clear(&osd);
             break;
-            
+          case 's':
+            save_snapshot();
+            break;
           default:
             break;            
         }
       }
 
       osd_update(&osd, user_channel_id);
+
+      /* Check for idle_timeout */
+      if (global_settings.idle_timeout > 0) {
+        if (htsp.subscriptionServer >= 0) {
+          /* Streaming is go so check timer */
+          if (idle_timeout == -1) { /* Timer is set to idle so no sub */
+            /* Start it */
+            idle_timeout = get_time() + (global_settings.idle_timeout * 1000 * 60);
+            fprintf(stderr,"idle_timeout timer started and set to %G\n",idle_timeout);
+          } else {
+            /* Test for a warning of timer to expire first */
+            if ((idle_timeout) && (get_time() >= (idle_timeout - 60000))) {
+              fprintf(stderr,"Warning: Idle timer has <1 minute left\n");
+              if (osd.osd_state == OSD_NONE) {
+                osd_alert(&osd, "IDLE TIMER - <1 Minute before sleep");
+              };
+            };
+            if ((idle_timeout) && (get_time() >= idle_timeout)) {
+              fprintf(stderr,"Stream expired, stopping\n");
+              msgqueue_add(&htsp.msgqueue, HTMSG_STOP);
+              osd_alert(&osd, "Timer expired - Viewing stopped");
+              idle_timeout = -1;
+            };
+          };
+        };
+      };
 
       if ((new_channel_timeout) && (get_time() >= new_channel_timeout)) {
         fprintf(stderr,"new_channel = %d\n",new_channel);

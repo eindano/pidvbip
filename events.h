@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 #include "htsp.h"
-#include "avl.h"
+#include "list.h"
 
 struct event_t {
-  struct avl avl;
+  struct list_head list;
+  int server;         /* Which server is this from? */
   uint32_t eventId;
   uint32_t channelId;
   int64_t start;
