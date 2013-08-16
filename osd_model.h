@@ -15,15 +15,16 @@ typedef struct {
 } model_menu_t;
 
 typedef struct {
-  int selectedIndex;  
-  struct event_t* nowEvent;
-  struct event_t* nextEvent;
+  int selectedIndex;
+  uint32_t event[12];
+  int server;
 } model_now_next_t;
 
 typedef struct {
   int id;
   int lcn;
   char name[30];
+  int server;
 } model_channels_t;
 
 typedef struct {
@@ -34,11 +35,10 @@ typedef struct {
 } model_channellist_t;
 
 void clearModelChannelList(model_channellist_t*);
-void setModelChannelList(model_channellist_t*, int, int id, int, char*, int);
+void setModelChannelList(model_channellist_t *model, int index, int id, int lcn, char *name, int selected);
 void copyModelChannelList(model_channellist_t*, const model_channellist_t*);
 int compareIndexModelChannelList(model_channellist_t*, model_channellist_t*, int);
 void setModelNowNext(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server);
-void clearModelNowNext(model_now_next_t *model);
 
 #endif
 

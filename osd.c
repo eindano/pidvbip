@@ -226,10 +226,6 @@ void osd_init(struct osd_t* osd)
     fontWidth[n] = (uint8_t)width;
   }
     
-  // set events in now_next model to NULL
-  osd->model_now_next.nowEvent = NULL;
-  osd->model_now_next.nextEvent = NULL;
-  
   (void)s; // remove compiler warning
 }
 
@@ -258,7 +254,7 @@ void osd_done(struct osd_t* osd)
 
 void osd_draw_window(struct osd_t* osd, int x, int y, int width, int height)
 {
-   graphics_resource_fill(osd->img, x, y, width, height, GRAPHICS_RGBA32(0,0,0,0x80));
+   graphics_resource_fill(osd->img, x, y, width, height, GRAPHICS_RGBA32(0,0,0,0xC0));
 
    graphics_resource_fill(osd->img, x, y, width, 2, GRAPHICS_RGBA32(0xff,0xff,0xff,0xa0));
    graphics_resource_fill(osd->img, x, y+height-2, width, 2, GRAPHICS_RGBA32(0xff,0xff,0xff,0xa0));
@@ -630,7 +626,7 @@ int32_t osd_paragraph(struct osd_t* osd, char *text, uint32_t text_size, uint32_
                                    GRAPHICS_RESOURCE_WIDTH,
                                    GRAPHICS_RESOURCE_HEIGHT,
                                    GRAPHICS_RGBA32(0xff,0xff,0xff,0xff), /* fg */
-                                   GRAPHICS_RGBA32(0,0,0,0x80), /* bg */
+                                   GRAPHICS_RGBA32(0,0,0,0xc0), /* bg */
                                    str, strlen(str), 40);                                 
       done = 1;                             
     } else {
@@ -646,7 +642,7 @@ int32_t osd_paragraph(struct osd_t* osd, char *text, uint32_t text_size, uint32_
                                        GRAPHICS_RESOURCE_WIDTH,
                                        GRAPHICS_RESOURCE_HEIGHT,
                                        GRAPHICS_RGBA32(0xff,0xff,0xff,0xff), /* fg */
-                                       GRAPHICS_RGBA32(0,0,0,0x80), /* bg */
+                                       GRAPHICS_RGBA32(0,0,0,0xc0), /* bg */
                                        tmp, strlen(tmp), 40);                                       
       text_y += 50;  
       if (text_y > (y + h)) {
@@ -685,7 +681,10 @@ void osd_channellist_init(struct osd_t* osd, int startChannel, int selectedChann
   int id;
   int i;
   int selected;
-
+  int server;
+  uint32_t event;
+  uint32_t next_event;
+  
   clearModelChannelList(&osd->model_channellist);
   clearModelChannelList(&osd->model_channellist_current);  
   
@@ -705,6 +704,9 @@ void osd_channellist_init(struct osd_t* osd, int startChannel, int selectedChann
         selected = 0;
       }
       
+      // event info
+      channels_geteventid(id, &event, &server);
+      channels_getnexteventid(id, &next_event, &server);      
       setModelChannelList(&osd->model_channellist, i, id, channels_getlcn(id), channels_getname(id), selected);
       id = channels_getnext(id);   
       if (id == first_channel) {
@@ -756,11 +758,11 @@ void osd_update(struct osd_t* osd, int channel_id)
       }  
       break;
     case OSD_CHANNELLIST:
-      channels_geteventid(osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id, &event, &server);
+/*      channels_geteventid(osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id, &event, &server);
       if (osd->event != event) { 
         osd_channellist_event_init(osd, osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id);
         osd_view(osd, OSD_CHANNELLIST);
-      }
+      }*/
       break;  
     case OSD_MENU:
       snprintf(osd->model_menu.bitrate, sizeof(osd->model_menu.bitrate), "Bitrate = %.3fMbps", vcodec_bitrate / 1000000);
@@ -820,12 +822,12 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
           osd_channellist_init(osd, startChannel, selectedChannel);
         }
         else {
-          // now and next window
           osd->model_channellist.selectedIndex--;
           osd_channellist_event_init(osd, osd->model_channellist.channel[osd->model_channellist.selectedIndex].id);
         }      
       }
       else {
+        // now and next window
         osd->model_now_next.selectedIndex = 0;
       }
       osd_view(osd, OSD_CHANNELLIST);

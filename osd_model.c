@@ -71,23 +71,21 @@ void compareModelChannelList(model_channellist_t *newModel, model_channellist_t 
 
 void setModelNowNext(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server)
 {  
-  clearModelNowNext(model);
-  model->nowEvent = event_copy(nowEvent, server);
-  model->nextEvent = event_copy(nextEvent, server);
   model->selectedIndex = 0;
-}
-
-void clearModelNowNext(model_now_next_t *model) {
-  if (model->nowEvent != NULL) {
-    event_free(model->nowEvent);
-  }
-
-  if (model->nextEvent != NULL) {
-    event_free(model->nextEvent);
-  }
-  
-  model->nowEvent = NULL;
-  model->nextEvent = NULL;
+  model->server = server;  
+  model->event[0] = nowEvent;
+  model->event[1] = nextEvent;
+  model->event[2] = 0;
+  model->event[3] = 0;
+  model->event[4] = 0;
+  model->event[5] = 0;
+  model->event[6] = 0;
+  model->event[7] = 0;
+  model->event[8] = 0;
+  model->event[9] = 0;
+  model->event[10] = 0;
+  model->event[11] = 0;
+  model->event[12] = 0;  
 }
 
 
