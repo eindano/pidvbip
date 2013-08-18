@@ -51,7 +51,7 @@ static void osd_channellist_channels(struct osd_t* osd)
   
   for (i = 0; i < osd->model_channellist.numUsed; i++) {
     if ( osd_model_channellist_compare(&osd->model_channellist, &osd->model_channellist_current, i) == 1 ) {
-      printf("osd_channellist_channels: Update index %d - lcn %d\n", i, osd->model_channellist.channel[i].lcn);
+      //printf("osd_channellist_channels: Update index %d - lcn %d\n", i, osd->model_channellist.channel[i].lcn);
       if (osd->model_channellist.selectedIndex == i) {
         color = COLOR_SELECTED_TEXT;
         if (osd->model_channellist.active) {
@@ -88,8 +88,8 @@ static void osd_channellist_event_info(struct osd_t* osd)
   if (event_id > 0) {
     event = event_copy(event_id, osd->model_now_next.server);
     if (event != NULL) {
-      printf("eventinfo: %s\n", event->title);
-      printf("eventinfo: %s\n", event->description);
+//      printf("eventinfo: %s\n", event->title);
+//      printf("eventinfo: %s\n", event->description);
       osd_text(osd, x, y, w, 50, COLOR_SELECTED_TEXT, COLOR_BACKGROUND, event->title);
       osd_paragraph(osd, event->description, 40, x, y + 50, w, h - 50);
     }
@@ -112,9 +112,15 @@ static void osd_channellist_nownext_title(struct osd_t* osd)
   int i;
   
   // clear window
-  graphics_resource_fill(osd->img, x, y - 1, w, h, COLOR_BACKGROUND);
+  graphics_resource_fill(osd->img, x - 2, y - 5, w + 5, h + 20, COLOR_BACKGROUND);
 
-  for (i = 0; i < 2; i++) {  
+  // Get todays date. Compare with start date and add today, tomorrow, monday, ...
+/*        snprintf(str, sizeof(str),"20%02d-%02d-%02d", start_time.tm_year, start_time.tm_mon, start_time.tm_mday);      
+        osd_text(osd, x, y, w, row_space_y, COLOR_TEXT, COLOR_BACKGROUND, str);
+        y += row_space_y;
+  */
+  
+  for (i = 0; i < 12; i++) {  
     if (osd->model_now_next.event[i] > 0) {
       event = event_copy(osd->model_now_next.event[i], osd->model_now_next.server);
       if (event != NULL) {
@@ -133,7 +139,7 @@ static void osd_channellist_nownext_title(struct osd_t* osd)
         snprintf(str, sizeof(str),"%02d:%02d - %02d:%02d %s",start_time.tm_hour,start_time.tm_min,stop_time.tm_hour,stop_time.tm_min, event->title);      
         osd_text(osd, x, y, w, row_space_y, color, bg_color, str);
         y += row_space_y;
-        printf("Now: %s\n", str);
+       // printf("Now: %s\n", str);
       }
     }  
   }

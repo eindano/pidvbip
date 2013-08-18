@@ -38,7 +38,7 @@ void osd_model_channellist_clear(model_channellist_t*);
 void osd_model_channellist_set(model_channellist_t *model, int index, int id, int lcn, char *name, int selected);
 void osd_model_channellist_copy(model_channellist_t*, const model_channellist_t*);
 int osd_model_channellist_compare(model_channellist_t*, model_channellist_t*, int);
-void osd_model_nownext_set(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server);
+void osd_model_nownext_set(model_now_next_t* model, uint32_t* eventids, int server);
 
 #endif
 

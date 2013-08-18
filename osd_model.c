@@ -65,22 +65,11 @@ int osd_model_channellist_compare(model_channellist_t *newModel, model_channelli
   return 0;
 }
 
-void osd_model_nownext_set(model_now_next_t *model, uint32_t nowEvent, uint32_t nextEvent, int server)
-{  
+void osd_model_nownext_set(model_now_next_t *model, uint32_t *eventids, int server)
+{ 
   model->selectedIndex = 0;
-  model->server = server;  
-  model->event[0] = nowEvent;
-  model->event[1] = nextEvent;
-  model->event[2] = 0;
-  model->event[3] = 0;
-  model->event[4] = 0;
-  model->event[5] = 0;
-  model->event[6] = 0;
-  model->event[7] = 0;
-  model->event[8] = 0;
-  model->event[9] = 0;
-  model->event[10] = 0;
-  model->event[11] = 0;
+  model->server = server;
+  memcpy(model->event, eventids, sizeof(model->event));
 }
 
 

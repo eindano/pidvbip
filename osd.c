@@ -662,12 +662,29 @@ int32_t osd_paragraph(struct osd_t* osd, char *text, uint32_t text_size, uint32_
  */
 void osd_channellist_event_init(struct osd_t* osd, int channel)
 {
+  struct event_t* event;
+  uint32_t eventids[12];
+  uint32_t eventid;
   int server;
+  int i;
   
-  channels_geteventid(channel, &osd->event, &server);
-  channels_getnexteventid(channel, &osd->nextEvent, &server);
+  channels_geteventid(channel, &osd->event, &server);  
+  eventid = osd->event;
+  for (i = 0; i < 12; i++) {
+    eventids[i] = eventid;
+    if (eventid > 0) {
+      event = event_copy(eventid, server);
+      if (event != NULL) {
+        eventid = event->nextEventId;  
+        event_free(event);
+      }
+      else {
+        eventid = 0;  
+      }
+    }
+  }    
   
-  osd_model_nownext_set(&osd->model_now_next, osd->event, osd->nextEvent, server);
+  osd_model_nownext_set(&osd->model_now_next, eventids, server);
 }                                   
 
 /*
@@ -800,7 +817,9 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
       }  
       else {
         // now and next window
-        osd->model_now_next.selectedIndex = 1;
+        if (osd->model_now_next.selectedIndex < 11) {
+          osd->model_now_next.selectedIndex++;
+        }  
       }
       osd_view(osd, OSD_CHANNELLIST);
       // make the new model the current
@@ -828,7 +847,9 @@ static int osd_process_channellist_key(struct osd_t* osd, int c, int startChanne
       }
       else {
         // now and next window
-        osd->model_now_next.selectedIndex = 0;
+        if (osd->model_now_next.selectedIndex > 0) {
+          osd->model_now_next.selectedIndex--;
+        }  
       }
       osd_view(osd, OSD_CHANNELLIST);
       // make the new model the current
