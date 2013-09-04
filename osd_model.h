@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #define CHANNELLIST_NUM_CHANNELS 12
+#define CHANNELLIST_NUM_EVENTS 11
 
 typedef struct {
   int id;
@@ -16,7 +17,7 @@ typedef struct {
 
 typedef struct {
   int selectedIndex;
-  uint32_t event[12];
+  uint32_t event[CHANNELLIST_NUM_EVENTS];
   int server;
 } model_now_next_t;
 
@@ -39,6 +40,8 @@ void osd_model_channellist_set(model_channellist_t *model, int index, int id, in
 void osd_model_channellist_copy(model_channellist_t*, const model_channellist_t*);
 int osd_model_channellist_compare(model_channellist_t*, model_channellist_t*, int);
 void osd_model_nownext_set(model_now_next_t* model, uint32_t* eventids, int server);
+void osd_model_nownext_copy(model_now_next_t *toModel, const model_now_next_t *fromModel);
+void osd_model_nownext_clear(model_now_next_t *model);
 
 #endif
 

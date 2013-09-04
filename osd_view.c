@@ -38,6 +38,7 @@ static uint32_t eventinfo_win_y;
 static uint32_t eventinfo_win_w;
 static uint32_t eventinfo_win_h;
 
+char* day_str[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
 static void osd_channellist_channels(struct osd_t* osd)
 {
@@ -100,27 +101,28 @@ static void osd_channellist_nownext_title(struct osd_t* osd)
 {
   uint32_t row_space_y = 50;
   uint32_t x = nownext_win_x + PADDING_X;
-  uint32_t y = nownext_win_y + PADDING_Y;
+  uint32_t y = nownext_win_y + PADDING_Y + row_space_y;
   uint32_t w = nownext_win_w - 2 * PADDING_X; 
   uint32_t h = nownext_win_h - 2 * PADDING_Y;
   uint32_t color;
   uint32_t bg_color = COLOR_BACKGROUND;
+  uint32_t date_y = nownext_win_y + PADDING_Y;
   struct tm start_time;
   struct tm stop_time;
   struct event_t* event;
   char str[128];
   int i;
-  
-  // clear window
-  graphics_resource_fill(osd->img, x - 2, y - 5, w + 5, h + 20, COLOR_BACKGROUND);
+  int update_all;
 
-  // Get todays date. Compare with start date and add today, tomorrow, monday, ...
-/*        snprintf(str, sizeof(str),"20%02d-%02d-%02d", start_time.tm_year, start_time.tm_mon, start_time.tm_mday);      
-        osd_text(osd, x, y, w, row_space_y, COLOR_TEXT, COLOR_BACKGROUND, str);
-        y += row_space_y;
-  */
+  update_all = osd->model_now_next.event[0] != osd->model_now_next_current.event[0];
+  if (update_all) {
+    // clear window
+    graphics_resource_fill(osd->img, x - 2, date_y - 5, w + 5, h + 20, COLOR_BACKGROUND);
+  }
   
-  for (i = 0; i < 12; i++) {  
+  /* Fixa scroll i nn window. Och endast uppdatera ändringar!! */
+  
+  for (i = 0; i < 11; i++) {  
     if (osd->model_now_next.event[i] > 0) {
       event = event_copy(osd->model_now_next.event[i], osd->model_now_next.server);
       if (event != NULL) {
@@ -134,12 +136,21 @@ static void osd_channellist_nownext_title(struct osd_t* osd)
           color = COLOR_TEXT;
           bg_color = COLOR_BACKGROUND;
         }  
-        localtime_r((time_t*)&event->start, &start_time);
-        localtime_r((time_t*)&event->stop, &stop_time);
-        snprintf(str, sizeof(str),"%02d:%02d - %02d:%02d %s",start_time.tm_hour,start_time.tm_min,stop_time.tm_hour,stop_time.tm_min, event->title);      
-        osd_text(osd, x, y, w, row_space_y, color, bg_color, str);
+        
+        if(update_all || i == osd->model_now_next.selectedIndex || i == osd->model_now_next_current.selectedIndex) { 
+          localtime_r((time_t*)&event->start, &start_time);
+          localtime_r((time_t*)&event->stop, &stop_time);
+          snprintf(str, sizeof(str),"%02d:%02d - %02d:%02d %s", start_time.tm_hour,start_time.tm_min,stop_time.tm_hour,stop_time.tm_min, event->title);      
+          osd_text(osd, x, y, w, row_space_y, color, bg_color, str);
+          printf("Now: %s\n", str);
+          
+          if (i == osd->model_now_next.selectedIndex) {
+            graphics_resource_fill(osd->img, x - 2, date_y - 5, w + 5, row_space_y, COLOR_BACKGROUND);
+            snprintf(str, sizeof(str),"%s %d", day_str[start_time.tm_wday], start_time.tm_mday);      
+            osd_text(osd, x, date_y, w, row_space_y, COLOR_SELECTED_TEXT, COLOR_BACKGROUND, str);            
+          }  
+        }  
         y += row_space_y;
-       // printf("Now: %s\n", str);
       }
     }  
   }

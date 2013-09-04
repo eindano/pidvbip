@@ -55,6 +55,7 @@ struct osd_t {
   /* channel list */
   model_channellist_t model_channellist_current;
   model_channellist_t model_channellist;
+  model_now_next_t model_now_next_current;  
   model_now_next_t model_now_next;  
   model_menu_t model_menu;
 };
