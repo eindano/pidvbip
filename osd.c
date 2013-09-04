@@ -777,11 +777,14 @@ void osd_update(struct osd_t* osd, int channel_id)
       }  
       break;
     case OSD_CHANNELLIST:
-/*      channels_geteventid(osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id, &event, &server);
-      if (osd->event != event) { 
+      channels_geteventid(osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id, &event, &server);
+      if (osd->model_now_next_current.event[0] != event) { 
         osd_channellist_event_init(osd, osd->model_channellist.channel[osd->model_channellist_current.selectedIndex].id);
         osd_view(osd, OSD_CHANNELLIST);
-      }*/
+        // make the new model the current
+        osd_model_channellist_copy(&osd->model_channellist_current, &osd->model_channellist);
+        osd_model_nownext_copy(&osd->model_now_next_current, &osd->model_now_next);
+      }
       break;  
     case OSD_MENU:
       snprintf(osd->model_menu.bitrate, sizeof(osd->model_menu.bitrate), "Bitrate = %.3fMbps", vcodec_bitrate / 1000000);
